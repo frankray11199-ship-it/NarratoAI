@@ -64,3 +64,4 @@ screenplay/render/score.wav
 screenplay/render/__pycache__/
 screenplay/render/*.mp4
 screenplay/pipeline/*.jsonl
+screenplay/*.mp4
