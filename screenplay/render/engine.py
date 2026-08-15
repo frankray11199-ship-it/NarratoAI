@@ -250,17 +250,17 @@ def sc_kintsugi(t, dur):
     bowl = pil_layer()
     d = ImageDraw.Draw(bowl)
     d.ellipse([cx - R, cy - R * 0.86, cx + R, cy + R * 0.86],
-              fill=(228, 226, 219, 255))
+              fill=(168, 167, 161, 255))
     d.ellipse([cx - R * 0.93, cy - R * 0.80, cx + R * 0.93, cy + R * 0.80],
-              fill=(206, 208, 205, 255))
+              fill=(140, 143, 141, 255))
     bowl = bowl.filter(ImageFilter.GaussianBlur(1.2))
     img = composite(base, bowl)
 
-    # 釉面反光
-    img *= (0.82 + 0.35 * np.exp(-(((X + 0.22) ** 2 + (Y - 0.36) ** 2)) / 0.05))[:, :, None]
+    # 釉面反光（收窄，避免碗心过曝把金线吃掉）
+    img *= (0.86 + 0.20 * np.exp(-(((X + 0.26) ** 2 + (Y - 0.34) ** 2)) / 0.022))[:, :, None]
 
     prog = smoothstep(0.15, 0.80, t / dur)
-    paths = _crack_paths(11, 5, 0.55, 22.0, origin=(cx - 40, cy - 30))
+    paths = _crack_paths(11, 5, 0.55, 34.0, origin=(cx - 40, cy - 30))
 
     def clamp_bowl(px, py):
         """把裂纹约束在碗内——裂缝不该长到碗外面去"""
@@ -317,11 +317,11 @@ def sc_wall_crack(t, dur):
     meas = pil_layer()
     md = ImageDraw.Draw(meas)
     val = 0.15 + 0.13 * grow
-    md.text((W * 0.62, H * 0.44), "%.2f mm" % val, font=font(52),
+    md.text((W * 0.64, H * 0.26), "%.2f mm" % val, font=font(52),
             fill=(228, 60, 44, 240))
-    md.line([(W * 0.60, H * 0.46), (W * 0.52, H * 0.50)],
+    md.line([(W * 0.62, H * 0.28), (W * 0.52, H * 0.34)],
             fill=(228, 60, 44, 200), width=2)
-    md.text((W * 0.62, H * 0.51), "裂缝宽度 · 累计观测", font=font(24),
+    md.text((W * 0.64, H * 0.33), "裂缝宽度 · 累计观测", font=font(24),
             fill=(200, 90, 78, 200))
     img = composite(img, meas)
 
@@ -394,7 +394,7 @@ def sc_viewfinder(t, dur):
 
     d.text((m, H - m + 22), "f/1.4    1/60    ISO 400", font=font(30),
            fill=(210, 208, 202, 190))
-    d.text((W - m - 210, H - m + 22), "DALI  04/09", font=font(30),
+    d.text((W - m - 210, H - m + 22), "DALI  04/23", font=font(30),
            fill=(210, 208, 202, 190))
     if int(t * 2) % 2 == 0:
         d.ellipse([m + 6, m - 46, m + 26, m - 26], fill=(220, 60, 50, 230))

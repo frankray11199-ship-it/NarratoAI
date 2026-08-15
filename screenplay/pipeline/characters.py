@@ -190,7 +190,7 @@ SHOTS = [
     (17, "场106", "林见月",
      "interior night, a bare rented room, a 43-year-old woman sitting at a small table trying to hold a gold-dust brush, her right hand visibly trembling, single bulb overhead", "2033"),
     (18, "场110", "林见月",
-     "exterior night, the same wooden pier nine years later, a 43-year-old woman crouching at the edge, her hand in the black water, the full moon shattered into fragments across the ripples, wide shot, moonlight only", "2033"),
+     "exterior night, the same wooden pier nine years later, a 43-year-old woman crouching at the edge, her hand in the black water, a moonless night sky, the lake surface completely black with no reflection, wide shot, only faint ambient starlight and a distant shore lamp", "2033"),
 ]
 
 

@@ -42,13 +42,14 @@ TL = [
     ]),
 
     (sc_wall_crack, 13.0, [
-        (3.6, 3.6, ["拆了它，不会当场塌"], dict(size=54)),
+        (3.6, 3.6, ["拆了它，不会当场塌"], dict(size=54, y_center=0.80)),
         (7.8, 4.2, ["塌 是 三 年 以 后 的 事"], dict(size=58, track=4,
+                                                 y_center=0.80,
                                                  color=(232, 96, 78))),
     ]),
 
     (sc_ring_sink, 11.0, [
-        (1.0, 3.4, ["2024 年 4 月 9 日"], dict(size=42, track=3,
+        (1.0, 3.4, ["2024 年 4 月 23 日"], dict(size=42, track=3,
                                               color=(196, 206, 214),
                                               small="洱海")),
         (6.4, 3.6, ["她 把 戒 指 弄 丢 了"], dict(size=50, track=2)),
@@ -92,9 +93,9 @@ TL = [
     ]),
 
     (lambda t, d: sc_water_moon(t, d, bright=0.85, agitate=0.15), 16.0, [
-        (2.0, 3.2, ["2033 年 4 月 6 日"], dict(size=40, track=3,
+        (2.0, 3.2, ["2033 年 4 月 23 日"], dict(size=40, track=3,
                                               color=(190, 200, 210),
-                                              small="才村码头 · 同一个位置")),
+                                              small="才村码头 · 同一个位置 · 这一夜没有月亮")),
         (7.0, 3.4, ["她 回 头 了"], dict(size=58, track=6)),
         (11.2, 4.0, ["身 后 什 么 都 没 有"], dict(size=58, track=6)),
     ]),
