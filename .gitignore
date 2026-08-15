@@ -62,3 +62,5 @@ docs/wechat-0.8
 screenplay/render/preview.mp4
 screenplay/render/score.wav
 screenplay/render/__pycache__/
+screenplay/render/*.mp4
+screenplay/pipeline/*.jsonl

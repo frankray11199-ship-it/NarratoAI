@@ -47,6 +47,15 @@ def blank():
     return np.zeros((H, W, 3), dtype=np.float32)
 
 
+def expose(img, gain=1.34, gamma=0.86, lift=0.012):
+    """
+    统一曝光：整体提亮 + 提伽马把暗部拉出来 + 微量黑电平抬升。
+    首轮渲染全片偏暗、暗部细节埋没，此函数为统一校正。
+    """
+    y = np.clip(img, 0, None) * gain + lift
+    return np.clip(y, 0, 1.0) ** gamma
+
+
 def to_rgb(lum, color=(1.0, 1.0, 1.0)):
     out = np.empty((H, W, 3), dtype=np.float32)
     for i in range(3):
@@ -182,8 +191,8 @@ def sc_water_moon(t, dur, bright=1.0, moon_x=0.06, agitate=0.0):
     colw = 0.05 + depth * 1.35
     col = np.exp(-((X - moon_x) ** 2) / (colw ** 2 + 1e-6))
 
-    spec = np.clip(wave, 0, None) ** 3.2
-    water = col * spec * 1.55 + col * 0.05 + 0.012
+    spec = np.clip(wave, 0, None) ** 2.6
+    water = col * spec * 2.35 + col * 0.10 + 0.022
     water *= smoothstep(y0, y0 + 0.03, Y)
 
     sky = np.exp(-((Y - y0) ** 2) / 0.006) * 0.05 + 0.014 * (1 - Y / y0)
@@ -251,15 +260,23 @@ def sc_kintsugi(t, dur):
     img *= (0.82 + 0.35 * np.exp(-(((X + 0.22) ** 2 + (Y - 0.36) ** 2)) / 0.05))[:, :, None]
 
     prog = smoothstep(0.15, 0.80, t / dur)
-    paths = _crack_paths(11, 5, 0.55, 26.0, origin=(cx - 40, cy - 30))
+    paths = _crack_paths(11, 5, 0.55, 22.0, origin=(cx - 40, cy - 30))
+
+    def clamp_bowl(px, py):
+        """把裂纹约束在碗内——裂缝不该长到碗外面去"""
+        ex, ey = (px - cx) / (R * 0.90), (py - cy) / (R * 0.77)
+        d = np.sqrt(ex * ex + ey * ey)
+        if d > 1.0:
+            px, py = cx + (px - cx) / d, cy + (py - cy) / d
+        return float(px), float(py)
 
     gold = pil_layer()
     gd = ImageDraw.Draw(gold)
     for pts, wid in paths:
         n = max(2, int(len(pts) * prog))
-        seg = [(float(px), float(py)) for px, py in pts[:n]]
+        seg = [clamp_bowl(px, py) for px, py in pts[:n]]
         if len(seg) > 1:
-            gd.line(seg, fill=(214, 168, 74, 255), width=max(2, int(7 * wid)),
+            gd.line(seg, fill=(222, 176, 80, 255), width=max(3, int(11 * wid)),
                     joint="curve")
     img = composite(img, gold, glow=0.55)
 
@@ -270,8 +287,8 @@ def sc_kintsugi(t, dur):
 def sc_wall_crack(t, dur):
     """承重墙：0.15mm → 0.28mm。结构失效不是一下子的，是累计的。"""
     n = value_noise(40, 7) * 0.5 + value_noise(9, 8) * 0.25
-    base = to_rgb(0.20 + n * 0.28, (0.86, 0.86, 0.84))
-    base *= (0.55 + 0.7 * np.exp(-((X - 0.5) ** 2) / 0.9))[:, :, None]
+    base = to_rgb(0.46 + n * 0.30, (0.86, 0.86, 0.84))
+    base *= (0.72 + 0.55 * np.exp(-((X - 0.5) ** 2) / 0.9))[:, :, None]
 
     p = t / dur
     grow = smoothstep(0.05, 0.95, p)
@@ -317,11 +334,11 @@ def sc_ring_sink(t, dur):
     p = t / dur
     dep = smoothstep(0, 1, p)
 
-    top = 0.09 * (1 - dep * 0.75)
-    lum = (top * (1 - Y * 0.85) + 0.008)
+    top = 0.20 * (1 - dep * 0.70)
+    lum = (top * (1 - Y * 0.80) + 0.018)
     caus = (np.sin(X * 7 + t * 1.6) * np.sin(Y * 11 - t * 1.1)
             + np.sin(X * 13 - t * 2.2) * np.sin(Y * 7 + t * 1.4))
-    lum = lum + np.clip(caus, 0, None) ** 2 * 0.05 * (1 - dep * 0.8) * (1 - Y)
+    lum = lum + np.clip(caus, 0, None) ** 2 * 0.12 * (1 - dep * 0.8) * (1 - Y)
     img = to_rgb(lum, (0.42, 0.66, 0.72))
 
     ring = pil_layer()
@@ -462,7 +479,7 @@ def sc_gold_dust(t, dur):
     img = to_rgb(0.035 + value_noise(80, 23) * 0.03, (0.9, 0.86, 0.80))
 
     rng = np.random.default_rng(77)
-    N = 1400
+    N = 4200
     x0 = rng.normal(W * 0.5, 60, N)
     y0 = rng.normal(H * 0.30, 30, N)
     vx = rng.normal(0, 42, N)
@@ -479,8 +496,8 @@ def sc_gold_dust(t, dur):
     np.add.at(canvas, (iy[inb], ix[inb]), 1.0)
     blur = np.asarray(Image.fromarray(np.clip(canvas * 255, 0, 255).astype(np.uint8))
                       .filter(ImageFilter.GaussianBlur(2.4)), dtype=np.float32) / 255.0
-    img += to_rgb(blur * 2.3, (1.0, 0.78, 0.34))
-    img += to_rgb(canvas * 0.9, (1.0, 0.92, 0.70))
+    img += to_rgb(blur * 3.4, (1.0, 0.78, 0.34))
+    img += to_rgb(canvas * 1.3, (1.0, 0.92, 0.70))
 
     img *= VIG[:, :, None]
     return img + grain(t)

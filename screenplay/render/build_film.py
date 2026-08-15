@@ -37,8 +37,8 @@ TL = [
     ]),
 
     (sc_kintsugi, 15.0, [
-        (4.6, 3.8, ["有些裂缝是修不好的"], dict(size=56)),
-        (9.0, 4.2, ["只能让它", "看起来好看一点"], dict(size=56)),
+        (4.6, 3.8, ["有些裂缝是修不好的"], dict(size=56, y_center=0.87)),
+        (9.0, 4.2, ["只能让它看起来好看一点"], dict(size=52, y_center=0.87)),
     ]),
 
     (sc_wall_crack, 13.0, [
@@ -76,7 +76,8 @@ TL = [
     ]),
 
     (sc_watch, 10.0, [
-        (3.6, 4.4, ["我 一 直 以 为 来 得 及"], dict(size=56, track=4)),
+        (3.6, 4.4, ["我 一 直 以 为 来 得 及"], dict(size=56, track=4,
+                                                y_center=0.88)),
     ]),
 
     (sc_streetlight, 9.5, [
@@ -86,8 +87,8 @@ TL = [
     (sc_years, 16.0, []),
 
     (sc_bowl_leak, 11.5, [
-        (2.6, 3.6, ["她 终 于 用 了 502"], dict(size=52, track=3)),
-        (7.2, 3.6, ["碗 漏 了"], dict(size=58, track=8)),
+        (2.6, 3.6, ["她 终 于 用 了 502"], dict(size=52, track=3, y_center=0.16)),
+        (7.2, 3.6, ["碗 漏 了"], dict(size=58, track=8, y_center=0.16)),
     ]),
 
     (lambda t, d: sc_water_moon(t, d, bright=0.85, agitate=0.15), 16.0, [
@@ -222,6 +223,10 @@ def render(preview=False):
                         arr = np.asarray(layer, dtype=np.float32) / 255.0
                         rgb, al = arr[:, :, :3], arr[:, :, 3:4] * a
                         img = img * (1 - al * 0.55) + rgb * al
+
+            # 统一曝光校正（片名卡与纯黑场不参与，避免黑底被抬灰）
+            if si != TITLE_SEG and fn is not sc_black:
+                img = E.expose(img)
 
             # 段落首尾淡入淡出
             k = min(E.smoothstep(0, 0.55, t), 1 - E.smoothstep(dur - 0.55, dur, t))
