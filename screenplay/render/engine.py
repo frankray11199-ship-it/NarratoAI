@@ -43,6 +43,16 @@ def grid():
 X, Y = grid()
 
 
+def set_resolution(w, h):
+    """切换渲染分辨率（动态分镜用 720p 以缩短渲染时间）"""
+    global W, H, X, Y, VIG
+    W, H = w, h
+    X, Y = grid()
+    VIG = vignette()
+    _noise_cache.clear()
+    _font_cache.clear()
+
+
 def blank():
     return np.zeros((H, W, 3), dtype=np.float32)
 

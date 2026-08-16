@@ -65,3 +65,5 @@ screenplay/render/__pycache__/
 screenplay/render/*.mp4
 screenplay/pipeline/*.jsonl
 screenplay/*.mp4
+screenplay/render/pilot_score.wav
+screenplay/render/pilot_fast.mp4
